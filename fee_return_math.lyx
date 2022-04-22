@@ -1,0 +1,889 @@
+#LyX 2.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 544
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\use_minted 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Section
+V2 returns
+\end_layout
+
+\begin_layout Standard
+Let 
+\begin_inset Formula $x_{t}$
+\end_inset
+
+ , 
+\begin_inset Formula $y_{t}$
+\end_inset
+
+ be the amount of 
+\begin_inset Formula $x$
+\end_inset
+
+ and 
+\begin_inset Formula $y$
+\end_inset
+
+ reserves in pool at time 
+\begin_inset Formula $t.$
+\end_inset
+
+ Let 
+\begin_inset Formula $p_{t}$
+\end_inset
+
+ be the marginal price of token 
+\begin_inset Formula $y$
+\end_inset
+
+ in units of token 
+\begin_inset Formula $x$
+\end_inset
+
+,
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+p_{t}=\frac{y_{t}}{x_{t}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The constant product formula, 
+\begin_inset Formula $xy=k$
+\end_inset
+
+, implies 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+x=k/y=\sqrt{k/p}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+y=\sqrt{kp}.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection*
+LP tokens
+\end_layout
+
+\begin_layout Subsubsection
+Minting LP tokens
+\end_layout
+
+\begin_layout Standard
+Let 
+\begin_inset Formula $\,supply_{t}$
+\end_inset
+
+ be the total supply of LP tokens in the pool at time 
+\begin_inset Formula $\,t$
+\end_inset
+
+where 
+\begin_inset Formula $\,t>0$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+If a user invests 
+\begin_inset Formula $n$
+\end_inset
+
+ number of token 
+\begin_inset Formula $\,x$
+\end_inset
+
+and 
+\begin_inset Formula $\,m$
+\end_inset
+
+ number of token 
+\begin_inset Formula $\,y$
+\end_inset
+
+, then the user would recieve 
+\begin_inset Formula $\,q$
+\end_inset
+
+number of LP tokens given by
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+q=min[(\frac{n}{x_{t}}*supply_{t},\frac{m}{y_{t}}*supply_{t}])
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Optimally, a user would supply an equal percentage of the reserves 
+\begin_inset Formula $\delta$
+\end_inset
+
+ such that 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+q=min[(\frac{\delta*x_{t}}{x_{t}}*supply_{t},\frac{\delta*y_{t}}{y_{t}}*supply_{t}])
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+q=min[(\delta*supply_{t},\delta*supply_{t}])
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+q=\delta*supply_{t}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This is because if a user supplied 
+\begin_inset Formula $\delta$
+\end_inset
+
+ percentage of token 
+\begin_inset Formula $x$
+\end_inset
+
+and 
+\begin_inset Formula $\delta+\epsilon$
+\end_inset
+
+ percentage of token 
+\begin_inset Formula $y$
+\end_inset
+
+with 
+\begin_inset Formula $\epsilon>0$
+\end_inset
+
+.
+ The user would still receive 
+\begin_inset Formula $q=\delta*supply_{t}$
+\end_inset
+
+ LP tokens and the 
+\begin_inset Formula $\epsilon$
+\end_inset
+
+token y would be donated to the pool.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+q=min[(\frac{\delta*x_{t}}{x_{t}}*supply_{t},\frac{(\delta+\epsilon)*y_{t}}{y_{t}}*supply_{t}])
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+q=min[(\delta*supply_{t},(\delta+\epsilon)*supply_{t}])
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Since 
+\begin_inset Formula $\epsilon>0$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+q=\delta*supply_{t}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Notice that 
+\begin_inset Formula $\,q$
+\end_inset
+
+ has no subscript.
+ The given tokens 
+\begin_inset Formula $q$
+\end_inset
+
+does not change over time
+\end_layout
+
+\begin_layout Standard
+If there are no reserves in the pool or if 
+\begin_inset Formula $\,t=0$
+\end_inset
+
+, then a user would receive
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+q=\sqrt{n*m}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Burning LP tokens
+\end_layout
+
+\begin_layout Standard
+Let 
+\begin_inset Formula $\,supply_{t}$
+\end_inset
+
+ be the total number of LP tokens in the pool at time t.
+ Let 
+\begin_inset Formula $\,q$
+\end_inset
+
+be the number of LP tokens the user is burning
+\end_layout
+
+\begin_layout Standard
+A user could then burn the position at time 
+\begin_inset Formula $\,t$
+\end_inset
+
+ to recieve 
+\begin_inset Formula $\:n$
+\end_inset
+
+ number of token 
+\begin_inset Formula $\,x$
+\end_inset
+
+ and 
+\begin_inset Formula $\,m$
+\end_inset
+
+ number of token 
+\begin_inset Formula $\,y$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+n=\frac{q}{supply_{t}}*x_{t}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+m=\frac{q}{supply_{t}}*y_{t}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+If the user mints and burns on the same block with marginal investment 
+\begin_inset Formula $\delta\,$
+\end_inset
+
+ percentage of the pool
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+n=\frac{min[(\frac{\delta*x_{t}}{x_{t}}*supply_{t},\frac{\delta*y_{t}}{y_{t}}*supply_{t}])}{supply_{t}}*x_{t}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+n=\frac{min[(\delta*supply_{t},\delta*supply_{t}])}{supply_{t}}*x_{t}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+n=\frac{\delta*supply_{t}}{supply_{t}}*x_{t}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+n=\delta*x_{t}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The same logic holds for token 
+\begin_inset Formula $y$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Determing LP token supply
+\end_layout
+
+\begin_layout Standard
+The current supply of LP tokens can be detemined by adding up the entire
+ time series of mints and burns by the formulas above
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Subsubsection
+Other pool state changes on mint and burns
+\end_layout
+
+\begin_layout Standard
+If the user mints of burns 
+\begin_inset Formula $\,q$
+\end_inset
+
+lp tokens, only the value of 
+\begin_inset Formula $\,k$
+\end_inset
+
+ changes
+\end_layout
+
+\begin_layout Standard
+When a user mints 
+\begin_inset Formula $\delta$
+\end_inset
+
+ fraction of the pool, the new state of the pool is 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+x_{t}^{'}=(\delta*x_{t})+x_{t}=(1+\delta)*x_{t}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+y_{t}^{'}=(\delta*y_{t})+y_{t}=(1+\delta)*y_{t}
+\]
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+This make 
+\begin_inset Formula $\,k^{'}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+k^{'}=x'_{t}*y_{t}^{'}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+k^{'}=(1+d)*x_{t}*(1+\delta)*y_{t}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+k'=(1+\delta)^{2}*(x_{t}*y_{t})
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+k^{'}=(1+\delta)^{2}*k
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+However 
+\begin_inset Formula $\,p'$
+\end_inset
+
+ does not change
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+p^{'}=\frac{y_{t}^{'}}{x_{t}^{'}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+p'=\frac{(1+\delta)*y_{t}}{(1+\delta)*x_{t}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+p^{'}=\frac{y_{t}}{x_{t}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+p^{'}=p
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The same logic holds for burns
+\end_layout
+
+\begin_layout Subsubsection
+Value of portfolio with only mints and burns
+\end_layout
+
+\begin_layout Standard
+Mints and burns do not change the value of the previous LP tokens.If no swaps
+ occur, a user will still be able to recieve 
+\begin_inset Formula $\,n$
+\end_inset
+
+token 
+\begin_inset Formula $\,x$
+\end_inset
+
+and 
+\begin_inset Formula $m$
+\end_inset
+
+ token 
+\begin_inset Formula $\,y$
+\end_inset
+
+for their 
+\begin_inset Formula $\,q$
+\end_inset
+
+LP tokens.
+\end_layout
+
+\begin_layout Standard
+Assume that only one mint for 
+\begin_inset Formula $\epsilon$
+\end_inset
+
+fraction of the pool has occured since a mint of 
+\begin_inset Formula $\delta$
+\end_inset
+
+ fraction of the pool occured.
+ After the mint of 
+\begin_inset Formula $\,\delta$
+\end_inset
+
+ fraction of the pool, the pool had reserves 
+\begin_inset Formula $x_{t}$
+\end_inset
+
+ for token 
+\begin_inset Formula $x$
+\end_inset
+
+and reserves 
+\begin_inset Formula $y_{t}$
+\end_inset
+
+ for token 
+\begin_inset Formula $y$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Thus currently after the 
+\begin_inset Formula $\epsilon$
+\end_inset
+
+mint, the pool is in the current state:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+supply_{t+1}=supply_{t}+\epsilon*supply_{t}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+x_{t+1}=\epsilon*x_{t}+x_{t}=(1+\epsilon)*x_{t}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+y_{t+1}=\epsilon*y_{t}+y_{t}=(1+\epsilon)*y_{t}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We want to ensure that we recieve back 
+\begin_inset Formula $n$
+\end_inset
+
+token 
+\begin_inset Formula $x$
+\end_inset
+
+and 
+\begin_inset Formula $m$
+\end_inset
+
+ token 
+\begin_inset Formula $y$
+\end_inset
+
+after this 
+\begin_inset Formula $\epsilon$
+\end_inset
+
+mint.
+ We know that 
+\begin_inset Formula $n=\delta*x_{t}$
+\end_inset
+
+ and 
+\begin_inset Formula $q=\delta*supply_{t}$
+\end_inset
+
+.
+ Thus in the current state of the pool
+\begin_inset Formula 
+\[
+n'=\frac{q}{supply_{t+1}}*x_{t+1}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+n'=\frac{\delta*supply_{t}}{(1+\epsilon)*supply_{t}}*(1+\epsilon)*x_{t}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+n'=\delta*x_{t}=n
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection*
+fee return
+\end_layout
+
+\begin_layout Standard
+Assume a marginal investment of 
+\begin_inset Formula $\delta$
+\end_inset
+
+ fraction of the pool.
+ Portfolio value in units of of token 
+\begin_inset Formula $x$
+\end_inset
+
+ at time 
+\begin_inset Formula $t$
+\end_inset
+
+is 
+\begin_inset Formula 
+\begin{align*}
+v_{t} & =x_{t}+y_{t}p_{t}\\
+v_{t} & =\sqrt{\frac{k_{t}}{p_{t}}}+p_{t}\sqrt{k_{t}p_{t}}
+\end{align*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+To calculate returns due to price changes only (without fees), we assume
+ no change in overall liquidity i.e.
+ 
+\begin_inset Formula $k_{t+1}=k_{t}$
+\end_inset
+
+.
+ The portfolio value at time 
+\begin_inset Formula $t+1$
+\end_inset
+
+ is 
+\begin_inset Formula 
+\[
+v_{t+1}=\sqrt{\frac{k_{t}}{p_{t+1}}}+p_{t+1}\sqrt{k_{t}p_{t+1}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Portfolio value change dure to price alone is 
+\begin_inset Formula $\Delta v_{t+1}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+We subtract overall portfolio return from this number to arrive at fee return
+\end_layout
+
+\end_body
+\end_document
