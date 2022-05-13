@@ -1,5 +1,6 @@
 .DS_Store
-
+/data/*
+!/data/block_to_dt.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

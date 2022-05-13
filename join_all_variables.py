@@ -38,9 +38,9 @@ v3 = pd.read_sql("SELECT * from v3_ret", conn).rename(columns = {"feeRet": "v3Re
                                                                  "tvlUSD": 'tvlUSD_v3'}).drop_duplicates()
 v2 = pd.read_sql("SELECT * from v2_ret", conn).rename(columns = {"feeRet": "v2Ret",
                                                                  "tvlUSD": 'tvlUSD_v2'}).drop_duplicates()
-
 # v3 factory for token0 token1 and fee tier
 factory_v3 = pd.read_csv(f"{path}/data/factory_v3.csv")
+factory_v2 = pd.read_csv(f"{path}/data/factory_v2.csv")
 
 # erc20 for token names
 erc20 = pd.read_csv(f"{path}/data/erc20.csv")
@@ -72,6 +72,11 @@ v2_raw['v2_md'] = v2_raw['md_+2'] + v2_raw['md_-2']
 
 v2_md = v2_raw[['dt', 'pool', 'v2_md']]
 
+## read in the dune daily prices data
+dune_px = pd.read_csv(f"{path}/data/dune_daily_prices.csv")
+dune_px['dt'] = pd.to_datetime(dune_px['dt']).dt.tz_localize(None)
+dune_px['add'] = dune_px['add'].apply(lambda x: str(x).replace('\\', '0'))
+
 print("Done reading data")
 
 ### pull only the top n pools
@@ -93,6 +98,11 @@ request = requests.post(
 v3_top_pools = request.json()
 v3_top_pools = v3_top_pools["data"]["pools"]
 v3_pools = [entry["id"] for entry in v3_top_pools]
+
+req = requests.get("https://tokens.uniswap.org/")
+tokens = req.json()
+
+token_list = [row['address'].lower() for row in tokens['tokens']]
 
 ## join the v2 and v3 data
 # if drop pools -> drop all pools that even touch the tvl limit
@@ -122,6 +132,7 @@ else:
 
 # broken pools - something happens with the rebase of these pools
 # some also dont trade anymore so its like the token got stopped
+
 v3 = v3[~v3['v3pool'].isin(['0x7e3a3a525d9d265d11d1d1db3cad678746b47d09', '0xad6d2f2cb7bf2c55c7493fd650d3a66a4c72c483',
                          '0x6a8c06aeef13aab2cdd51d41e41641630c41f5ff', '0x0fddb7063f2db3c6b5b00b33758cdbd51ed2cc6f',
                            '0x1becf1ac50f31c3441181563f9d350ddf72a2bfa'])].copy()
@@ -130,6 +141,9 @@ v3 = v3[~v3['v3pool'].isin(['0x7e3a3a525d9d265d11d1d1db3cad678746b47d09', '0xad6
 # we want this to be an inner join
 # we want all the others to be an outer join
 uni = v2.merge(v3, left_on = ['block_t0', 'block_t1', 'v3pool'], right_on = ['block_t0', 'block_t1', 'v3pool'])
+
+uni = uni[~uni['v2pool_x'].isna()].copy()
+
 assert uni[(uni['v2pool_x'] != uni['v2pool_y'])].empty, "Different v2 references"
 
 uni['block_t0'] = uni['block_t0'].astype(float)
@@ -159,7 +173,50 @@ uni = pd.merge(uni, conc, left_on = ['dt', 'v3pool'], right_on = ['date', 'addre
 # there will be duplicates from multiple fee tiers, but we can just drop duplicates
 uni = pd.merge(uni, v2_md, left_on = ['dt', 'v2pool'], right_on = ['dt', 'pool'], how = 'left').drop_duplicates()
 
+## join v3 factory
+uni = pd.merge(uni, factory_v3[['token0', 'token1', 'fee', 'pool']], 
+         left_on = ['v3pool'], right_on = ['pool'], how = 'left')
+
+## join the dune daily prices
+uni = pd.merge(uni, dune_px, left_on = ['date', 'token0'], right_on = ['dt', 'add'], how = 'left')
+uni['v3_usd_ret'] = uni['px'] * uni['v3Ret']
+uni['v2_usd_ret'] = uni['px'] * uni['v2Ret']
+
+## join erc20 token names
+uni = pd.merge(uni, erc20[['contract_address', 'symbol']].rename(columns = {"symbol": "token0_sym"}), 
+                 left_on = ['token0'], 
+                 right_on = ['contract_address'], how = 'left').drop("contract_address", axis = 1)
+
+uni = pd.merge(uni, erc20[['contract_address', 'symbol']].rename(columns = {"symbol": "token1_sym"}), 
+                 left_on = ['token1'], 
+                 right_on = ['contract_address'], how = 'left').drop("contract_address", axis = 1)
+
 ## sanity checks
 assert length_before == uni.shape[0], 'Merging change the lengths of the values'
+uni['tvlUSD_v2'] = uni['tvlUSD_v2'].astype(float)
+uni['tvlUSD_v3'] = uni['tvlUSD_v3'].astype(float)
+uni['largestV3'] = 0
+
+# we want to ensure that only the top v3 pool is chosen
+# this is not the most efficient way to do this, but it works
+for v2pool in uni['v2pool_x'].unique():
+    if type(v2pool) != str:
+        print(v2pool)
+        continue
+    
+    v2_df = uni[uni['v2pool_x'] == v2pool].copy()
+    if v2_df['v3pool'].unique().shape[0] > 1:
+        v3tgt = v2_df.groupby("v3pool").sum()['tvlUSD_v3'].idxmax()
+    else:
+        v3tgt = v2_df['v3pool'].unique()[0]
+    
+    uni.loc[uni['v3pool'] == v3tgt, 'largestV3'] = 1
+
+# clean up the columns
+uni = uni[['block_t1', 'v2Ret', 'v3pool', 'tvlUSD_v2', 'v3Ret',
+            'tvlUSD_v3', 'spr_v2-v3', 'tvlSpr', 'v3_volume',
+            'v2pool_x', 'v2_volume', 'date', 'marketdepth',
+            'v2_md', 'token0', 'token1', 'fee', 'px', 'v3_usd_ret', 'v2_usd_ret',
+            'token0_sym', 'token1_sym', 'largestV3']]
 
 uni.to_csv(f"{path}/data/returns_joined_df.csv")

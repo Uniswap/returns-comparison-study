@@ -1,0 +1,698 @@
+#LyX 2.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 544
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\use_minted 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Section
+V3 returns
+\end_layout
+
+\begin_layout Section*
+Introduction
+\end_layout
+
+\begin_layout Standard
+Uniswap v3 added several pool and positional values to calculate fees.
+\end_layout
+
+\begin_layout Subsection
+Position and tick indexed state
+\end_layout
+
+\begin_layout Standard
+First, the position has three values, two ticks and a liquidity value 
+\begin_inset Formula $l$
+\end_inset
+
+.
+ The liquidity value denotes the virtual liquidity held by the position.
+ The two ticks are the lower tick - 
+\begin_inset Formula $i_{l}$
+\end_inset
+
+ - and the upper tick - 
+\begin_inset Formula $i_{u}$
+\end_inset
+
+.
+ These ticks both have two values associated with them - feeGrowthOutside0X128
+ - 
+\begin_inset Formula $f_{o,0}$
+\end_inset
+
+ - and feeGrowthOutside1X128 - 
+\begin_inset Formula $f_{o,1}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+The ticks are determined by the user when they create a position.
+ The tick values 
+\begin_inset Formula $f_{o,0}$
+\end_inset
+
+ and 
+\begin_inset Formula $f_{o,1}$
+\end_inset
+
+ track how many fees were accumulated within a certain range.
+\end_layout
+
+\begin_layout Subsection
+Pool indexed state
+\end_layout
+
+\begin_layout Standard
+Pools also track feeGrowthGlobal0X128, 
+\begin_inset Formula $f_{g,0}$
+\end_inset
+
+, and feeGrowthGlobal1X128 - 
+\begin_inset Formula $f_{g,1}$
+\end_inset
+
+.
+ These two values track the total amount of fees collected per unit of virtual
+ liquidity 
+\begin_inset Formula $l$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Section*
+General fee calculations
+\end_layout
+
+\begin_layout Standard
+Users are able to calculate unclaimed fees using the following formula.
+ Since the formula for fees are the same for token 
+\begin_inset Formula $0$
+\end_inset
+
+ and token 
+\begin_inset Formula $1$
+\end_inset
+
+, we will drop the subscript.
+\end_layout
+
+\begin_layout Standard
+First, we need to define the formula 
+\begin_inset Formula $f_{r}(t)$
+\end_inset
+
+ using where 
+\begin_inset Formula $i_{c}$
+\end_inset
+
+ is the current tick state of the pool
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+f_{r}(t)=f_{g,t}-f_{b,t}(i_{l})-f_{a,t}(i_{u})
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+where 
+\begin_inset Formula $f_{a}(i)$
+\end_inset
+
+ and 
+\begin_inset Formula $f_{b}(i)$
+\end_inset
+
+ are defined as
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+f_{a}(i)=\begin{cases}
+f_{g}-f_{o}(i) & i_{c}\geq i\\
+f_{o}(i) & i_{c}<i
+\end{cases}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+f_{b}(i)=\begin{cases}
+f_{o}(i) & i_{c}\geq i\\
+f_{g}-f_{o}(i) & i_{c}<i
+\end{cases}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The uncollected fees can be defined as
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+f_{u}(t_{1},t_{0})=l(f_{r}(t_{1})-f_{r}(t_{0})
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+where 
+\begin_inset Formula $t_{1}$
+\end_inset
+
+ is the current time and 
+\begin_inset Formula $t_{0}$
+\end_inset
+
+ is the time the position was opened.
+ 
+\begin_inset Formula $f_{r}(t_{0})$
+\end_inset
+
+ can either be calculated from the pool state or from feeGrowthInside value
+ stored in the position state.
+\end_layout
+
+\begin_layout Section*
+Full-range fee Calculations
+\end_layout
+
+\begin_layout Standard
+First, we define that for full-range positions 
+\begin_inset Formula $i_{l}\leq i_{c}\leq i_{u}\forall i_{c}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Because of this, the fee calculation formula is always
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+f_{r}(t)=f_{g,t}-f_{o,t}(i_{l})-f_{o,t}(i_{u})
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+However, 
+\begin_inset Formula $f_{o,t}(i_{l})$
+\end_inset
+
+ and 
+\begin_inset Formula $f_{o,t}(i_{u})$
+\end_inset
+
+ are static values.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+f_{o,t}(i_{l})=0
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+f_{o,t}(i_{u})=c
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The constant 
+\begin_inset Formula $c$
+\end_inset
+
+ is the value of 
+\begin_inset Formula $f_{r}(t)$
+\end_inset
+
+ when tick 
+\begin_inset Formula $i_{u}$
+\end_inset
+
+ is initialized.
+ In practice, 
+\begin_inset Formula $c$
+\end_inset
+
+ simplifies out.
+\end_layout
+
+\begin_layout Standard
+This simplifies the formula of 
+\begin_inset Formula $f_{r}(t)$
+\end_inset
+
+ to
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+f_{r}(t)=f_{g,t}-c
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+and 
+\begin_inset Formula $f_{u}(t_{1})$
+\end_inset
+
+ to
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+f_{u}(t_{1},t_{0})=l(f_{g,t_{1}}-c-f_{g,t_{0}}+c)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+f_{u}(t_{1},t_{0})=l(f_{g,t_{1}}-f_{g,t_{0}})
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Theoretically, this calculation makes sense.
+\begin_inset Formula $f_{g,t}$
+\end_inset
+
+ is the fee growth of one unit of liquidity 
+\begin_inset Formula $l$
+\end_inset
+
+ since time 0.
+ Thus 
+\begin_inset Formula $f_{g,t_{1}}-f_{g,t_{0}}$
+\end_inset
+
+ gives the fee growth of one unit of liquidity from 
+\begin_inset Formula $t_{0}$
+\end_inset
+
+ to 
+\begin_inset Formula $t_{1}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Section*
+Positional value
+\end_layout
+
+\begin_layout Standard
+We must introduce the variables 
+\begin_inset Formula $p_{a}$
+\end_inset
+
+, the lower bound of the price range, 
+\begin_inset Formula $p_{b}$
+\end_inset
+
+, the upper bound of the pric range, and 
+\begin_inset Formula $P$
+\end_inset
+
+ the current price.
+\end_layout
+
+\begin_layout Standard
+To calculate fee returns, we must first know the value of our underlying
+ at time 
+\begin_inset Formula $t$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We introduce Equation 2.2 from the Uniswap v3 whitepaper
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+(x_{real}+\frac{l}{\sqrt{p_{b}}})(y_{real}+l\sqrt{p_{a}})=l^{2}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Because we always know our liquidity will be in range, we can simply to
+ where 
+\begin_inset Formula $x$
+\end_inset
+
+ is token 
+\begin_inset Formula $0$
+\end_inset
+
+ and 
+\begin_inset Formula $y$
+\end_inset
+
+ is token 
+\begin_inset Formula $1$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+x=l\frac{\sqrt{p_{b}}-\sqrt{P}}{\sqrt{P}\sqrt{p_{b}}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+y=l(\sqrt{P}-\sqrt{p_{a}})
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+However, since 
+\begin_inset Formula $p_{b}$
+\end_inset
+
+ is functionally infinity, we can simplfy further the equation for 
+\begin_inset Formula $x$
+\end_inset
+
+ further
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+x=l(\frac{\sqrt{p_{b}}}{\sqrt{P}\sqrt{p_{b}}}-\frac{\sqrt{P}}{\sqrt{P}\sqrt{p_{b}}})
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+x=l(\frac{1}{\sqrt{P}}-\frac{1}{\sqrt{p_{b}}})
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Since 
+\begin_inset Formula $\frac{1}{\sqrt{p_{b}}}$
+\end_inset
+
+ will functionally be 0, we can remove that term and simplfy the equation
+ of 
+\begin_inset Formula $x$
+\end_inset
+
+to 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+x=\frac{l}{\sqrt{P}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Similarly since 
+\begin_inset Formula $\sqrt{p_{a}}$
+\end_inset
+
+ is functionally 0, we can simply the equation for 
+\begin_inset Formula $y$
+\end_inset
+
+ to
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+y=l\sqrt{P}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Thus our portfolio at any time in token 
+\begin_inset Formula $x$
+\end_inset
+
+ is 
+\begin_inset Formula 
+\[
+v_{t}=\frac{l}{\sqrt{P_{t}}}+l\sqrt{P_{t}}P_{t}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section*
+Fee returns
+\end_layout
+
+\begin_layout Standard
+Finally, for calculation purposes, we choose a percent 
+\begin_inset Formula $\delta$
+\end_inset
+
+ such that 
+\begin_inset Formula $l=\delta L$
+\end_inset
+
+, where 
+\begin_inset Formula $L$
+\end_inset
+
+ is the liquidity in-range for the pool.
+\end_layout
+
+\begin_layout Standard
+In practice, the calculation is invariant to the choice of 
+\begin_inset Formula $\delta$
+\end_inset
+
+ and 
+\begin_inset Formula $l$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Let 
+\begin_inset Formula $r(t,t+1)$
+\end_inset
+
+ be returns from time 
+\begin_inset Formula $t$
+\end_inset
+
+ to time 
+\begin_inset Formula $t+1$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+r(t,t+1)=\frac{f_{u}(t,t+1)}{v_{t}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+r(t,t+1)=\frac{l(f_{g,t_{1+1}}-f_{g,t})}{\frac{l}{\sqrt{P_{t}}}+l\sqrt{P_{t}}P_{t}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+r(t,t+1)=\frac{f_{g,t_{1+1}}-f_{g,t}}{\frac{1}{\sqrt{P_{t}}}+\sqrt{P_{t}}P_{t}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+which gives the fee return on one unit of liquidity.
+\end_layout
+
+\end_body
+\end_document
