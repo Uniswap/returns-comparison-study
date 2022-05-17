@@ -75,24 +75,206 @@
 
 \begin_body
 
-\begin_layout Section
-V3 returns
+\begin_layout Title
+Math Appendix
 \end_layout
 
-\begin_layout Section*
-Introduction
+\begin_layout Section
+v2 fee returns
 \end_layout
 
 \begin_layout Standard
-Uniswap v3 added several pool and positional values to calculate fees.
+Let 
+\begin_inset Formula $x_{t}$
+\end_inset
+
+ , 
+\begin_inset Formula $y_{t}$
+\end_inset
+
+ be the amount of asset 1 and asset 2 reserves in a constant product function
+ market making (CPFMM) liquidity pool at time 
+\begin_inset Formula $t.$
+\end_inset
+
+ Let 
+\begin_inset Formula $p_{t}$
+\end_inset
+
+ be the marginal price of token 
+\begin_inset Formula $y$
+\end_inset
+
+ in units of token 
+\begin_inset Formula $x$
+\end_inset
+
+, 
+\begin_inset Formula $p_{t}=\frac{y_{t}}{x_{t}}$
+\end_inset
+
+.
+ Let 
+\begin_inset Formula $k_{t}$
+\end_inset
+
+ denote the liquidity that exists in the pool at time 
+\begin_inset Formula $t.$
+\end_inset
+
+The constant product formula, 
+\begin_inset Formula $x_{t}y_{t}=k_{t}$
+\end_inset
+
+ is held in every period.
+ That is, 
+\begin_inset Formula $x_{t}=k_{t}/y_{t}=\sqrt{k_{t}/p_{t}}$
+\end_inset
+
+ and 
+\begin_inset Formula $y_{t}=\sqrt{k_{t}p_{t}}$
+\end_inset
+
+.
+ 
+\begin_inset Formula $k_{t}$
+\end_inset
+
+ can only be changed via accrual of return fees absent of addition and subtracti
+on of reserves through liquidity pool mints and burns.
+ 
+\end_layout
+
+\begin_layout Standard
+Let 
+\begin_inset Formula $v_{t}\equiv v\left(k_{t},p_{t}\right)$
+\end_inset
+
+ be the portfolio value of the liquidity pool expressed in asset 1 as the
+ numeraire at time 
+\begin_inset Formula $t$
+\end_inset
+
+.
+ When expressed in terms of the amount of reserve asset 1 and 2, the portfolio
+ value is 
+\begin_inset Formula $v\left(k_{t},p_{t}\right)=x_{t}+y_{t}p_{t}^{-1}$
+\end_inset
+
+.
+ Applying the CPFMM formula, the liquidity pool value can be expressed as
+ 
+\begin_inset Formula 
+\[
+v_{t}\equiv v\left(k_{t,}p_{t}\right)=\sqrt{\frac{k_{t}}{p_{t}}}+\sqrt{k_{t}p_{t}}p_{t}^{-1}.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Absent of mints and burns, the simple return on a liquidity pool due to
+ fee accrual is 
+\begin_inset Formula 
+\[
+r_{t+1}^{fee}=\frac{v_{t+1}-v\left(k_{t},p_{t+1}\right)}{v_{t}}.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Note that 
+\begin_inset Formula $\frac{v\left(k_{t},p_{t+1}\right)}{v_{t}}$
+\end_inset
+
+ is the gross return of the liquidity pool portfolio value without fee accrual.
+ Minting and burning of liquidity pool positions can be accounted for as
+ follows.
+ The evolution of liquidity value follows 
+\begin_inset Formula $k_{t+1}=k_{t}+\kappa_{t+1}+\phi_{t+1}$
+\end_inset
+
+, where 
+\begin_inset Formula $\kappa_{t+1}$
+\end_inset
+
+ is the net mints minus burns that occurs in between 
+\begin_inset Formula $t$
+\end_inset
+
+ and 
+\begin_inset Formula $t+1$
+\end_inset
+
+ and 
+\begin_inset Formula $\phi_{t+1}$
+\end_inset
+
+ is the fee accrual due to transactions in this period, i.e.
+ 
+\begin_inset Formula $\phi_{t+1}=\sum_{i}\lambda|s_{i}|$
+\end_inset
+
+ 
+\begin_inset Formula $\forall$
+\end_inset
+
+ swap 
+\begin_inset Formula $s_{i}$
+\end_inset
+
+ that occurs between 
+\begin_inset Formula $t$
+\end_inset
+
+and 
+\begin_inset Formula $t+1$
+\end_inset
+
+ and fee tier 
+\begin_inset Formula $\lambda$
+\end_inset
+
+.
+ Let 
+\begin_inset Formula $k_{t+1}^{\prime}\equiv k_{t+1}-\kappa_{t+1}$
+\end_inset
+
+.
+ Thus, we have the mint-burn adjusted simple fee return on a liquidity pool
+ 
+\begin_inset Formula 
+\[
+r_{t+1}^{fee}=\frac{v\left(k_{t+1}^{\prime},p_{t+1}\right)-v\left(k_{t},p_{t+1}\right)}{v\left(k_{t},p_{t}\right)}.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+v3 returns
+\end_layout
+
+\begin_layout Standard
+Uniswap v3 added several pool, tick, and positional indexed state values.
+ The following methodology follows the descriptions in the v3 white paper.
+ 
 \end_layout
 
 \begin_layout Subsection
-Position and tick indexed state
+Position- and tick- indexed state
 \end_layout
 
 \begin_layout Standard
-First, the position has three values, two ticks and a liquidity value 
+Each position has three state values, two associated with upper and lower
+ tick and a liquidity value 
 \begin_inset Formula $l$
 \end_inset
 
@@ -133,7 +315,7 @@ The ticks are determined by the user when they create a position.
 \end_layout
 
 \begin_layout Subsection
-Pool indexed state
+Pool-indexed state
 \end_layout
 
 \begin_layout Standard
@@ -155,33 +337,31 @@ Pools also track feeGrowthGlobal0X128,
  
 \end_layout
 
-\begin_layout Section*
+\begin_layout Subsection
 General fee calculations
 \end_layout
 
 \begin_layout Standard
-Users are able to calculate unclaimed fees using the following formula.
- Since the formula for fees are the same for token 
-\begin_inset Formula $0$
-\end_inset
-
- and token 
-\begin_inset Formula $1$
-\end_inset
-
-, we will drop the subscript.
+Unclaimed fees are calculate as follows.
+ We drop the subscript indicating token 1 and 2 since the formula for the
+ two are the same.
+ 
 \end_layout
 
 \begin_layout Standard
-First, we need to define the formula 
+Cumulative fees per share 
 \begin_inset Formula $f_{r}(t)$
 \end_inset
 
- using where 
-\begin_inset Formula $i_{c}$
+ in the range between two ticks 
+\begin_inset Formula $i_{l}$
 \end_inset
 
- is the current tick state of the pool
+ and 
+\begin_inset Formula $i_{u}$
+\end_inset
+
+ is 
 \end_layout
 
 \begin_layout Standard
@@ -197,6 +377,10 @@ f_{r}(t)=f_{g,t}-f_{b,t}(i_{l})-f_{a,t}(i_{u})
 
 \begin_layout Standard
 where 
+\begin_inset Formula $i_{c}$
+\end_inset
+
+ is the current tick state of the pool, 
 \begin_inset Formula $f_{a}(i)$
 \end_inset
 
@@ -268,12 +452,25 @@ where
  stored in the position state.
 \end_layout
 
-\begin_layout Section*
+\begin_layout Subsection
 Full-range fee Calculations
 \end_layout
 
 \begin_layout Standard
-First, we define that for full-range positions 
+For full-range positions, 
+\begin_inset Formula $i_{c}$
+\end_inset
+
+ is always between 
+\begin_inset Formula $i_{l}$
+\end_inset
+
+ and 
+\begin_inset Formula $i_{u}$
+\end_inset
+
+, i.e.
+ 
 \begin_inset Formula $i_{l}\leq i_{c}\leq i_{u}\forall i_{c}$
 \end_inset
 
@@ -281,7 +478,7 @@ First, we define that for full-range positions
 \end_layout
 
 \begin_layout Standard
-Because of this, the fee calculation formula is always
+The fee calculation simplifies to
 \end_layout
 
 \begin_layout Standard
@@ -304,33 +501,16 @@ However,
 \begin_inset Formula $f_{o,t}(i_{u})$
 \end_inset
 
- are static values.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\[
-f_{o,t}(i_{l})=0
-\]
-
+ are static values, i.e., 
+\begin_inset Formula $f_{o,t}(i_{l})=0$
 \end_inset
 
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\[
-f_{o,t}(i_{u})=c
-\]
-
+ and 
+\begin_inset Formula $f_{o,t}(i_{u})=c$
 \end_inset
 
-
-\end_layout
-
-\begin_layout Standard
-The constant 
+.
+ The constant 
 \begin_inset Formula $c$
 \end_inset
 
@@ -342,26 +522,14 @@ The constant
 \begin_inset Formula $i_{u}$
 \end_inset
 
- is initialized.
- In practice, 
-\begin_inset Formula $c$
-\end_inset
-
- simplifies out.
-\end_layout
-
-\begin_layout Standard
-This simplifies the formula of 
-\begin_inset Formula $f_{r}(t)$
-\end_inset
-
- to
+ is initialized and drops out.
+ Thus uncollected full range fee is
 \end_layout
 
 \begin_layout Standard
 \begin_inset Formula 
 \[
-f_{r}(t)=f_{g,t}-c
+f_{u}(t_{1},t_{0})=l(f_{g,t_{1}}-f_{g,t_{0}}).
 \]
 
 \end_inset
@@ -370,37 +538,6 @@ f_{r}(t)=f_{g,t}-c
 \end_layout
 
 \begin_layout Standard
-and 
-\begin_inset Formula $f_{u}(t_{1})$
-\end_inset
-
- to
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\[
-f_{u}(t_{1},t_{0})=l(f_{g,t_{1}}-c-f_{g,t_{0}}+c)
-\]
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\[
-f_{u}(t_{1},t_{0})=l(f_{g,t_{1}}-f_{g,t_{0}})
-\]
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Theoretically, this calculation makes sense.
 \begin_inset Formula $f_{g,t}$
 \end_inset
 
@@ -408,8 +545,7 @@ Theoretically, this calculation makes sense.
 \begin_inset Formula $l$
 \end_inset
 
- since time 0.
- Thus 
+ since time 0 and 
 \begin_inset Formula $f_{g,t_{1}}-f_{g,t_{0}}$
 \end_inset
 
@@ -422,276 +558,67 @@ Theoretically, this calculation makes sense.
 \end_inset
 
 .
+ The fee return on a full-range 
+\begin_inset Formula $v3$
+\end_inset
+
+ positions is
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+r_{t+1}^{fee}=l\frac{f_{g,t_{1+1}}-f_{g,t}}{v_{t}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+where 
+\begin_inset Formula $v_{t}$
+\end_inset
+
+ is the portfolio value of the full-range liquidity position at time 
+\begin_inset Formula $t$
+\end_inset
+
+ defined similarly as that in 
+\begin_inset Formula $v2$
+\end_inset
+
+.
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Equation 2.2 in the v3 white paper has the real reserve of a position defined
+ by the curve 
+\begin_inset Formula $\left(x+\frac{L}{\sqrt{p_{b}}}\right)\left(y+L\sqrt{p_{a}}\right)=L^{2}$
+\end_inset
+
+.
+ In full-range positions, 
+\begin_inset Formula $p_{a}\rightarrow0$
+\end_inset
+
+ and 
+\begin_inset Formula $p_{b}\rightarrow\infty$
+\end_inset
+
+, this indifference curve becomes identical to 
+\begin_inset Formula $xy=L^{2}\equiv k$
+\end_inset
+
+.
  
 \end_layout
 
-\begin_layout Section*
-Positional value
-\end_layout
-
-\begin_layout Standard
-We must introduce the variables 
-\begin_inset Formula $p_{a}$
-\end_inset
-
-, the lower bound of the price range, 
-\begin_inset Formula $p_{b}$
-\end_inset
-
-, the upper bound of the pric range, and 
-\begin_inset Formula $P$
-\end_inset
-
- the current price.
-\end_layout
-
-\begin_layout Standard
-To calculate fee returns, we must first know the value of our underlying
- at time 
-\begin_inset Formula $t$
 \end_inset
 
 
-\end_layout
-
-\begin_layout Standard
-We introduce Equation 2.2 from the Uniswap v3 whitepaper
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\[
-(x_{real}+\frac{l}{\sqrt{p_{b}}})(y_{real}+l\sqrt{p_{a}})=l^{2}
-\]
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Because we always know our liquidity will be in range, we can simply to
- where 
-\begin_inset Formula $x$
-\end_inset
-
- is token 
-\begin_inset Formula $0$
-\end_inset
-
- and 
-\begin_inset Formula $y$
-\end_inset
-
- is token 
-\begin_inset Formula $1$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\[
-x=l\frac{\sqrt{p_{b}}-\sqrt{P}}{\sqrt{P}\sqrt{p_{b}}}
-\]
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\[
-y=l(\sqrt{P}-\sqrt{p_{a}})
-\]
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-However, since 
-\begin_inset Formula $p_{b}$
-\end_inset
-
- is functionally infinity, we can simplfy further the equation for 
-\begin_inset Formula $x$
-\end_inset
-
- further
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\[
-x=l(\frac{\sqrt{p_{b}}}{\sqrt{P}\sqrt{p_{b}}}-\frac{\sqrt{P}}{\sqrt{P}\sqrt{p_{b}}})
-\]
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\[
-x=l(\frac{1}{\sqrt{P}}-\frac{1}{\sqrt{p_{b}}})
-\]
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Since 
-\begin_inset Formula $\frac{1}{\sqrt{p_{b}}}$
-\end_inset
-
- will functionally be 0, we can remove that term and simplfy the equation
- of 
-\begin_inset Formula $x$
-\end_inset
-
-to 
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\[
-x=\frac{l}{\sqrt{P}}
-\]
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Similarly since 
-\begin_inset Formula $\sqrt{p_{a}}$
-\end_inset
-
- is functionally 0, we can simply the equation for 
-\begin_inset Formula $y$
-\end_inset
-
- to
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\[
-y=l\sqrt{P}
-\]
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Thus our portfolio at any time in token 
-\begin_inset Formula $x$
-\end_inset
-
- is 
-\begin_inset Formula 
-\[
-v_{t}=\frac{l}{\sqrt{P_{t}}}+l\sqrt{P_{t}}P_{t}
-\]
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Section*
-Fee returns
-\end_layout
-
-\begin_layout Standard
-Finally, for calculation purposes, we choose a percent 
-\begin_inset Formula $\delta$
-\end_inset
-
- such that 
-\begin_inset Formula $l=\delta L$
-\end_inset
-
-, where 
-\begin_inset Formula $L$
-\end_inset
-
- is the liquidity in-range for the pool.
-\end_layout
-
-\begin_layout Standard
-In practice, the calculation is invariant to the choice of 
-\begin_inset Formula $\delta$
-\end_inset
-
- and 
-\begin_inset Formula $l$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Let 
-\begin_inset Formula $r(t,t+1)$
-\end_inset
-
- be returns from time 
-\begin_inset Formula $t$
-\end_inset
-
- to time 
-\begin_inset Formula $t+1$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\[
-r(t,t+1)=\frac{f_{u}(t,t+1)}{v_{t}}
-\]
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\[
-r(t,t+1)=\frac{l(f_{g,t_{1+1}}-f_{g,t})}{\frac{l}{\sqrt{P_{t}}}+l\sqrt{P_{t}}P_{t}}
-\]
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\[
-r(t,t+1)=\frac{f_{g,t_{1+1}}-f_{g,t}}{\frac{1}{\sqrt{P_{t}}}+\sqrt{P_{t}}P_{t}}
-\]
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-which gives the fee return on one unit of liquidity.
 \end_layout
 
 \end_body
